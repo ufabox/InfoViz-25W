@@ -1,2 +1,2 @@
-# InfoViz-25W-G1
+# InfoViz-25W
 
