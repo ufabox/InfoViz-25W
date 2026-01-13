@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Assignment 2</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+
+<body>
+
+    <h1 class="responsive-svg-container" style="text-align:center">
+        193.187 Information Visualization <br>
+    </h1>
+    <h3 style="text-align:center">
+        Group Assignment 2 - D3 Interactive Visualization Project
+    </h3>
+    <br>
+    <h3 style="text-align:center">
+        Submitted By: Group 14<br>Valentin Tian (12426893) <br>
+        Kashir Hasnain (12350030)<br>
+        Doan Chau Tran (11736088)<br>
+        Ildar Fatkullin (11724445)<br>
+    </h3>
+    <br>
+
+   
+    <section class="button-demo responsive-svg-container" aria-labelledby="buttons-heading">
+        <h2 id="buttons-heading" style="text-align:center">Useful Links</h2>
+        <div class="buttons">
+            <button class="btn btn--primary" aria-label="View Code on GitHub">
+                <a href="https://github.com/kashirhasnain/InfoViz-GroupAssignment2">View Code</a>
+            </button>
+            <button class="btn btn--secondary" aria-label="Access Dataset">
+                <a href="https://www.gov.uk/government/statistics/road-safety-data/">Access Dataset</a>
+            </button>
+            <button class="btn btn--primary" aria-label="View Code on GitHub">
+                <a
+                    href="https://github.com/kashirhasnain/InfoViz-GroupAssignment2/blob/main/Road%20Safety%20proposal%20-%20G1.pdf">Project
+                    Proposal</a>
+            </button>
+        </div>
+    </section>
+    <div class="dashboard">
+        <div class="header">
+            <h1>DASHBOARDS</h1>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="dashboard1">Dashboard 1 <span class="risk-label"> Analyst and Pricing
+                    Managers</span></button>
+            <button class="tab" data-tab="dashboard2">Dashboard 2 <span class="risk-label">Policymakers and
+                    Analysts</span></button>
+        </div>
+
+        <!-- Dashboard 1 Content -->
+        <div class="tab-content active" id="dashboard1">
+            <div class="layout">
+                <!-- Filters Sidebar - NOW FIRST -->
+                <div class="filters">
+                    <h3>Filters</h3>
+
+                    <button id="resetFilters" class="btn btn--primary" style="width: 100%; margin-bottom: 15px;">
+                        Reset All Filters
+                    </button>
+
+                    <div class="filter-group" style="margin-bottom: 80px;">
+                        <div class="filter-group-title">Month</div>
+                        <select class="month-select"
+                            style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd; margin-top: 5px;">
+                            <option value="">All Months</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-group-title">Vehicle Type</div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="car" checked>
+                            <label for="car">Cars & Taxis</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="bike" checked>
+                            <label for="bike">Motorcycles</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="bus" checked>
+                            <label for="bus">Buses & Minibuses</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="truck" checked>
+                            <label for="truck">Vans & Goods</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="agriculture" checked>
+                            <label for="agriculture">Agriculture / Special / Other</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-group-title">Engine CC</div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cc100" checked>
+                            <label for="cc100">up to 100 cc</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cc500" checked>
+                            <label for="cc500">up to 500 cc</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cc1000" checked>
+                            <label for="cc1000">up to 1000 cc</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="cc2000" checked>
+                            <label for="cc2000">up to 2000 cc</label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-group-title">Vehicle Age</div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="age03" checked>
+                            <label for="age03">0 - 3</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="age310" checked>
+                            <label for="age310">3 - 10</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="age1020" checked>
+                            <label for="age1020">10 - 20</label>
+                        </div>
+                        <div class="filter-option">
+                            <input type="checkbox" id="age50" checked>
+                            <label for="age50">>20</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content - NOW SECOND -->
+                <div class="main-content">
+                    <h4> Shows Vehicle Collisions for Year 2024</h4>
+                    <!-- Vehicle Statistics -->
+                    <div class="vehicle-stats" id="vehicleStats"></div>
+                    
+                    <!-- Charts Grid -->
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <div class="chart-title">Vehicle Point of Impact</div>
+                            <div id="impactChart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Weather Conditions</div>
+                            <div id="weatherChart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Collisions by Driver Age Group</div>
+                            <div id="ageChart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Distance Banding <span class="risk-label">(Risk Factor)</span>
+                            </div>
+                            <div id="distanceChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard 2 Content -->
+        <div class="tab-content" id="dashboard2">
+            <div class="layout">
+                <div class="main-content">
+                    <div style="padding: 40px; text-align: center; color: #666;">
+                        <h2>Content Coming Soon </h2>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script src="dashboard.js"></script>
+    <br><br>
+</body>
+
+</html>
