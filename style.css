@@ -68,11 +68,16 @@ body{
   border-radius:12px;
   box-shadow:var(--shadow);
   padding:12px;
+
   position:sticky;
   top:12px;
-  height: calc(100vh - 140px);
-  overflow:auto;
+
+  /* key change: no inner scrolling */
+  height:auto;
+  overflow:visible;
+  align-self:start;
 }
+
 
 .panel-title{
   font-weight:800;
@@ -114,6 +119,17 @@ select.input{
   cursor:pointer;
 }
 
+/* Prevent horizontal overflow in the date row (and avoid sidebar X-scroll) */
+.filter-row{
+  flex-wrap: wrap;
+}
+
+.filter-row .input{
+  width: auto;          /* override global width:100% for row items */
+  flex: 1 1 130px;      /* allow them to shrink and wrap */
+  min-width: 0;
+}
+
 .muted{ color:var(--muted); font-size:12px; }
 
 .sidebar-footnote{
@@ -122,7 +138,7 @@ select.input{
   border-top:1px dashed var(--border);
   font-size:12px;
   color:var(--muted);
-  display:flex;
+  display:none;
   flex-direction:column;
   gap:6px;
 }
