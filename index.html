@@ -16,10 +16,7 @@
   <main class="dashboard">
     <nav class="tabs" aria-label="Pages">
       <button class="tab active" data-tab="collisions" type="button">
-        Collisions
-      </button>
-      <button class="tab" data-tab="vehicles" type="button">
-        Vehicles
+        Casualties
       </button>
       <button class="tab" data-tab="about" type="button">
         About
@@ -52,13 +49,13 @@
             <option value="ALL">ALL</option>
           </select>
 
-          <div class="d2-section-title">Select Age</div>
+          <div class="d2-section-title">Select Age of Casualty Participant</div>
           <div id="ageChecklist" class="d2-checklist"></div>
 
           <div class="d2-section-title">Select Casualty Class</div>
           <div id="classChecklist" class="d2-checklist"></div>
 
-          <div class="d2-section-title">Select Gender</div>
+          <div class="d2-section-title">Select Gender of Casualty Participant</div>
           <div id="genderChecklist" class="d2-checklist"></div>
 
           <div class="d2-section-title">Reset</div>
@@ -126,134 +123,6 @@
       <div id="tooltip-collisions" class="d2-tooltip"></div>
     </section>
 
-    <!-- Vehicles (was Dashboard 1) -->
-    <section class="tab-content" id="vehicles">
-      <div class="layout">
-        <aside class="filters">
-          <h3>Filters</h3>
-
-          <button id="resetFilters" class="btn btn--primary" type="button" style="width: 100%; margin-bottom: 15px;">
-            Reset All Filters
-          </button>
-
-          <div class="filter-group" style="margin-bottom: 80px;">
-            <div class="filter-group-title">Month</div>
-            <select class="month-select" aria-label="Select month"
-                    style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd; margin-top: 5px;">
-              <option value="">All Months</option>
-              <option value="1">January</option>
-              <option value="2">February</option>
-              <option value="3">March</option>
-              <option value="4">April</option>
-              <option value="5">May</option>
-              <option value="6">June</option>
-              <option value="7">July</option>
-              <option value="8">August</option>
-              <option value="9">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <div class="filter-group-title">Vehicle Type</div>
-
-            <div class="filter-option">
-              <input type="checkbox" id="car" checked />
-              <label for="car">Cars &amp; Taxis</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="bike" checked />
-              <label for="bike">Motorcycles</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="bus" checked />
-              <label for="bus">Buses &amp; Minibuses</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="truck" checked />
-              <label for="truck">Vans &amp; Goods</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="agriculture" checked />
-              <label for="agriculture">Active / Special / Other</label>
-            </div>
-          </div>
-
-          <div class="filter-group">
-            <div class="filter-group-title">Engine CC</div>
-
-            <div class="filter-option">
-              <input type="checkbox" id="cc100" checked />
-              <label for="cc100">up to 100 cc</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="cc500" checked />
-              <label for="cc500">up to 500 cc</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="cc1000" checked />
-              <label for="cc1000">up to 1000 cc</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="cc2000" checked />
-              <label for="cc2000">over 1000 cc</label>
-            </div>
-          </div>
-
-          <div class="filter-group">
-            <div class="filter-group-title">Vehicle Age</div>
-
-            <div class="filter-option">
-              <input type="checkbox" id="age03" checked />
-              <label for="age03">0 - 3</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="age310" checked />
-              <label for="age310">3 - 10</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="age1020" checked />
-              <label for="age1020">10 - 20</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="age50" checked />
-              <label for="age50">&gt; 20</label>
-            </div>
-          </div>
-        </aside>
-
-        <section class="main-content">
-          <h4>Vehicle collisions (2024)</h4>
-
-          <div class="vehicle-stats" id="vehicleStats"></div>
-
-          <div class="charts-grid">
-            <div class="chart-container">
-              <div class="chart-title">Vehicle point of impact</div>
-              <div id="impactChart"></div>
-            </div>
-
-            <div class="chart-container">
-              <div class="chart-title">Weather conditions</div>
-              <div id="weatherChart"></div>
-            </div>
-
-            <div class="chart-container">
-              <div class="chart-title">Collisions by driver age group</div>
-              <div id="ageChart"></div>
-            </div>
-
-            <div class="chart-container">
-              <div class="chart-title">Distance banding <span class="risk-label">(Risk factor)</span></div>
-              <div id="distanceChart"></div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </section>
-
     <!-- About -->
     <section class="tab-content" id="about">
       <div class="about-wrap">
@@ -268,9 +137,10 @@
             <ul>
               <li>Group 14</li>
               <li>Valentin Tian (12426893)</li>
+              <li>Ildar Fatkullin (11724445)</li>
               <li>Kashir Hasnain (12350030)</li>
               <li>Doan Chau Tran (11736088)</li>
-              <li>Ildar Fatkullin (11724445)</li>
+
             </ul>
           </div>
 
@@ -290,7 +160,6 @@
             </p>
             <ul>
               <li><code>data/df_merged_GB_collisions_last5.csv</code></li>
-              <li><code>data/collisions_2024.csv</code>, <code>data/vehicles_2024.csv</code>, <code>data/casualties_2024.csv</code></li>
             </ul>
           </div>
         </div>
@@ -298,7 +167,6 @@
     </section>
   </main>
 
-  <script src="vehicles.js"></script>
-  <script src="collisions.js"></script>
+  <script src="casualties.js"></script>
 </body>
 </html>

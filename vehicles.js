@@ -48,6 +48,17 @@ let activeVehicleFilters = new Set([
     'Other / Unknown'
 ]);
 
+const SAFE_COLORS = {
+    blue:   '#4E79A7',
+    teal:   '#59A14F',
+    orange: '#F28E2B',
+    purple: '#B07AA1',
+    gray:   '#9D9D9D',
+    slate:  '#76B7B2',
+    brown:  '#9C755F',
+    olive:  '#8CD17D'
+};
+
 // Active engine CC filters
 let activeEngineFilters = new Set(['cc100', 'cc500', 'cc1000', 'cc2000']);
 
@@ -620,15 +631,15 @@ function drawWeatherChart() {
     const colorScale = d3.scaleOrdinal()
         .domain(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
         .range([
-            '#f1c40f', // Fine (sunny yellow)
-            '#3498db', // Raining (rain blue)
-            '#85c1e9', // Snowing (icy light blue)
-            '#f39c12', // Fine + high winds (windy yellow/orange)
-            '#2e86c1', // Raining + high winds (dark rain blue)
-            '#5dade2', // Snowing + high winds (cold blue)
-            '#bdc3c7', // Fog / mist (fog gray)
-            '#e67e22', // Other (orange – attention)
-            '#7f8c8d'  // Unknown (neutral gray)
+            SAFE_COLORS.orange, // Fine
+            SAFE_COLORS.blue,   // Raining
+            SAFE_COLORS.slate,  // Snowing
+            SAFE_COLORS.olive,  // Fine + wind
+            SAFE_COLORS.teal,   // Rain + wind
+            SAFE_COLORS.purple, // Snow + wind
+            SAFE_COLORS.gray,   // Fog
+            SAFE_COLORS.brown,  // Other
+            '#B0B0B0'            // Unknown
         ]);
 
     // Scale x
@@ -675,6 +686,10 @@ function drawWeatherChart() {
     // Function to draw and update chart
     function updateChart(chartData) {
 
+    chartData = chartData
+        .slice()
+        .sort((a, b) => b.count - a.count);
+        
         y.domain(chartData.map(d => d.label));
         x.domain([0, d3.max(chartData, d => d.count)]).nice();
 
@@ -1131,7 +1146,7 @@ function drawDistanceChart() {
         chart.append("path")
             .datum(distanceData)
             .attr("class", "area-path")
-            .attr("fill", "#14e12c")
+            .attr("fill", "#9c9b91")
             .attr("opacity", 0.6)
             .attr("d", area);
 
@@ -1140,7 +1155,7 @@ function drawDistanceChart() {
             .datum(distanceData)
             .attr("class", "line-path")
             .attr("fill", "none")
-            .attr("stroke", "#e74c3c")
+            .attr("stroke", SAFE_COLORS.blue)
             .attr("stroke-width", 3)
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
@@ -1159,7 +1174,7 @@ function drawDistanceChart() {
             .attr("cx", d => x(d.position))
             .attr("cy", d => y(d.count))
             .attr("r", 6)
-            .attr("fill", "#e74c3c")
+            .attr("fill", SAFE_COLORS.blue)
             .attr("stroke", "white")
             .attr("stroke-width", 2)
             .style("cursor", "pointer")
