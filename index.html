@@ -1,256 +1,304 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UK Road Safety Dashboard (D3)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Road Safety Dashboards</title>
+
   <link rel="stylesheet" href="style.css" />
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
 </head>
+
 <body>
-  <header class="app-header">
-    <div class="header-left">
-      <div class="app-title">UK Road Safety Dashboard</div>
-      <div class="app-subtitle"></div>
-    </div>
-    <div class="header-right">
-      <button id="btnClear" class="btn btn-outline">Clear filters</button>
-    </div>
-  </header>
+  <main class="dashboard">
+    <nav class="tabs" aria-label="Pages">
+      <button class="tab active" data-tab="collisions" type="button">
+        Collisions
+      </button>
+      <button class="tab" data-tab="vehicles" type="button">
+        Vehicles
+      </button>
+      <button class="tab" data-tab="about" type="button">
+        About
+      </button>
+    </nav>
 
-  <nav class="tabs" role="tablist" aria-label="Dashboards">
-    <button class="tab active" data-view="summary">Summary</button>
-    <button class="tab" data-view="time">Time heatmap</button>
-    <button class="tab" data-view="vehicles">Vehicles</button>
-    <button class="tab" data-view="about">About</button>
-  </nav>
+    <!-- Collisions (was Dashboard 2) -->
+    <section class="tab-content active" id="collisions">
+      <div class="d2-wrap">
+        <aside class="d2-sidebar">
+          <div id="insightsPanel" class="insights-panel"></div>
 
-  <main class="app">
-    <!-- LEFT FILTER PANEL -->
-    <aside class="sidebar">
-      <div class="panel-title">Filters</div>
+          <div class="d2-section-title">Year</div>
+          <div class="d2-note">
+            Choose two years from the data. Charts show CURRENT YEAR. KPI compares CURRENT vs PRIOR.
+          </div>
 
-      <div class="filter-group">
-        <div class="filter-label">Date range (collision date)</div>
-        <div class="filter-row">
-          <input id="dateStart" type="date" class="input" />
-          <span class="muted">to</span>
-          <input id="dateEnd" type="date" class="input" />
-        </div>
+          <div class="d2-section-title">CURRENT YEAR</div>
+          <select id="currentYearSelect" class="d2-select" aria-label="Pick current year">
+            <option value="" disabled selected>Pick current year</option>
+          </select>
+
+          <div class="d2-section-title">PRIOR YEAR</div>
+          <select id="priorYearSelect" class="d2-select" aria-label="Pick prior year">
+            <option value="" disabled selected>Pick prior year</option>
+          </select>
+
+          <div class="d2-section-title">Select Speed Limit</div>
+          <select id="speedSelect" class="d2-select" aria-label="Select speed limit">
+            <option value="ALL">ALL</option>
+          </select>
+
+          <div class="d2-section-title">Select Age</div>
+          <div id="ageChecklist" class="d2-checklist"></div>
+
+          <div class="d2-section-title">Select Casualty Class</div>
+          <div id="classChecklist" class="d2-checklist"></div>
+
+          <div class="d2-section-title">Select Gender</div>
+          <div id="genderChecklist" class="d2-checklist"></div>
+
+          <div class="d2-section-title">Reset</div>
+          <button id="btnReset" class="d2-btn d2-btn-wide" type="button">RESET ALL</button>
+        </aside>
+
+        <section class="d2-main">
+          <div class="d2-topbar">
+            <div class="d2-row d2-gap10">
+              <div class="d2-muted d2-strong">Select one or more severity:</div>
+              <button id="sevAll" class="d2-btn d2-btn-active" type="button">SELECT ALL</button>
+              <button id="sevFatal" class="d2-btn d2-danger" type="button">FATAL</button>
+              <button id="sevSerious" class="d2-btn d2-warn" type="button">SERIOUS</button>
+              <button id="sevSlight" class="d2-btn d2-ok" type="button">SLIGHT</button>
+            </div>
+            <div class="d2-muted" id="activeFiltersLabel"></div>
+          </div>
+
+          <div class="d2-grid3">
+            <div class="d2-card">
+              <div class="d2-card-title">Casualties by collision severity</div>
+              <div id="chartSeverity" class="d2-chart"></div>
+            </div>
+
+            <div class="d2-card">
+              <div class="d2-card-title">Total casualties + % vs Prior Year</div>
+
+              <div class="d2-kpi">
+                <div class="d2-kpi-big" id="kpiTotal">—</div>
+                <div class="d2-kpi-sub">
+                  Δ vs prior year: <span class="d2-kpi-delta" id="kpiDelta">—</span>
+                </div>
+                <div class="d2-kpi-sub" id="kpiContext">—</div>
+              </div>
+
+              <div class="d2-card-title d2-mt12">Casualties by gender</div>
+              <div id="chartGender" class="d2-chart d2-chart-small"></div>
+            </div>
+
+            <div class="d2-card">
+              <div class="d2-card-title">Monthly accidents</div>
+              <div id="chartMonthly" class="d2-chart"></div>
+            </div>
+          </div>
+
+          <div class="d2-grid2">
+            <div class="d2-card">
+              <div class="d2-card-title">Casualties by type of vehicle</div>
+              <div id="chartVehicle" class="d2-chart"></div>
+            </div>
+
+            <div class="d2-card">
+              <div class="d2-card-title">Casualties map</div>
+              <div id="chartMap" class="d2-chart d2-chart-map"></div>
+            </div>
+          </div>
+
+          <div class="m" style="margin-top:4px">
+            <span class="k">Brushing tips:</span> click bars / map to highlight; <b>Shift+click</b> multi-select; click empty area or <b>Esc</b> to clear.
+          </div>
+        </section>
       </div>
 
-      <div class="filter-group">
-        <div class="filter-label">Police force</div>
-        <select id="selPolice" class="input"></select>
+      <!-- Tooltip for collisions dashboard -->
+      <div id="tooltip-collisions" class="d2-tooltip"></div>
+    </section>
+
+    <!-- Vehicles (was Dashboard 1) -->
+    <section class="tab-content" id="vehicles">
+      <div class="layout">
+        <aside class="filters">
+          <h3>Filters</h3>
+
+          <button id="resetFilters" class="btn btn--primary" type="button" style="width: 100%; margin-bottom: 15px;">
+            Reset All Filters
+          </button>
+
+          <div class="filter-group" style="margin-bottom: 80px;">
+            <div class="filter-group-title">Month</div>
+            <select class="month-select" aria-label="Select month"
+                    style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd; margin-top: 5px;">
+              <option value="">All Months</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-group-title">Vehicle Type</div>
+
+            <div class="filter-option">
+              <input type="checkbox" id="car" checked />
+              <label for="car">Cars &amp; Taxis</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="bike" checked />
+              <label for="bike">Motorcycles</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="bus" checked />
+              <label for="bus">Buses &amp; Minibuses</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="truck" checked />
+              <label for="truck">Vans &amp; Goods</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="agriculture" checked />
+              <label for="agriculture">Active / Special / Other</label>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-group-title">Engine CC</div>
+
+            <div class="filter-option">
+              <input type="checkbox" id="cc100" checked />
+              <label for="cc100">up to 100 cc</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="cc500" checked />
+              <label for="cc500">up to 500 cc</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="cc1000" checked />
+              <label for="cc1000">up to 1000 cc</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="cc2000" checked />
+              <label for="cc2000">over 1000 cc</label>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-group-title">Vehicle Age</div>
+
+            <div class="filter-option">
+              <input type="checkbox" id="age03" checked />
+              <label for="age03">0 - 3</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="age310" checked />
+              <label for="age310">3 - 10</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="age1020" checked />
+              <label for="age1020">10 - 20</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="age50" checked />
+              <label for="age50">&gt; 20</label>
+            </div>
+          </div>
+        </aside>
+
+        <section class="main-content">
+          <h4>Vehicle collisions (2024)</h4>
+
+          <div class="vehicle-stats" id="vehicleStats"></div>
+
+          <div class="charts-grid">
+            <div class="chart-container">
+              <div class="chart-title">Vehicle point of impact</div>
+              <div id="impactChart"></div>
+            </div>
+
+            <div class="chart-container">
+              <div class="chart-title">Weather conditions</div>
+              <div id="weatherChart"></div>
+            </div>
+
+            <div class="chart-container">
+              <div class="chart-title">Collisions by driver age group</div>
+              <div id="ageChart"></div>
+            </div>
+
+            <div class="chart-container">
+              <div class="chart-title">Distance banding <span class="risk-label">(Risk factor)</span></div>
+              <div id="distanceChart"></div>
+            </div>
+          </div>
+        </section>
       </div>
+    </section>
 
-      <div class="filter-group">
-        <div class="filter-label">Highway authority (ONS)</div>
-        <select id="selHighway" class="input"></select>
-      </div>
+    <!-- About -->
+    <section class="tab-content" id="about">
+      <div class="about-wrap">
+        <h2>About</h2>
+        <p>
+          Interactive road safety dashboards built with D3.js using UK Department for Transport (DfT) road safety data (STATS19).
+        </p>
 
-      <div class="filter-group">
-        <div class="filter-label">Road type</div>
-        <select id="selRoadType" class="input"></select>
-      </div>
-
-      <div class="filter-group">
-        <div class="filter-label">Speed limit</div>
-        <select id="selSpeed" class="input"></select>
-      </div>
-
-      <div class="filter-group">
-        <div class="filter-label">Casualty sex</div>
-        <select id="selSex" class="input"></select>
-      </div>
-
-      <div class="filter-group">
-        <div class="filter-label">Age band (derived)</div>
-        <select id="selAgeBand" class="input"></select>
-      </div>
-
-      <div class="filter-group">
-        <div class="filter-label">Casualty class</div>
-        <select id="selClass" class="input"></select>
-      </div>
-
-      <div class="sidebar-footnote">
-        <div><span class="dot dot-info"></span> Data: UK DfT STATS19</div>
-        <div class="muted">Note: labels are code-based where lookups are not available.</div>
-      </div>
-    </aside>
-
-    <!-- RIGHT CONTENT -->
-    <section class="content">
-
-      <!-- TOP SWITCHERS -->
-      <div class="switchers">
-        <div class="switcher-block">
-          <div class="switcher-title">Casualty severity</div>
-          <div class="btn-group" id="severityButtons">
-            <button class="btn btn-chip active" data-sev="Fatal">Fatal</button>
-            <button class="btn btn-chip active" data-sev="Serious">Serious</button>
-            <button class="btn btn-chip active" data-sev="Slight">Slight</button>
-          </div>
-        </div>
-
-        <div class="switcher-block">
-          <div class="switcher-title">Heatmap metric</div>
-          <div class="btn-group" id="metricButtons">
-            <button class="btn btn-chip active" data-metric="count">Total</button>
-            <button class="btn btn-chip" data-metric="ksiShare">KSI share</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- VIEWS -->
-      <section class="view active" id="view-summary">
-        <div class="kpis">
-          <div class="kpi-card">
-            <div class="kpi-label">Total casualties</div>
-            <div class="kpi-value" id="kpiCas">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Total collisions</div>
-            <div class="kpi-value" id="kpiCol">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Fatal / Serious / Slight</div>
-            <div class="kpi-value" id="kpiSev">—</div>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div class="card">
-            <div class="card-title">Casualties by severity</div>
-            <svg id="chartSeverity" class="chart"></svg>
+        <div class="about-grid">
+          <div class="about-card">
+            <h3>Team</h3>
+            <ul>
+              <li>Group 14</li>
+              <li>Valentin Tian (12426893)</li>
+              <li>Kashir Hasnain (12350030)</li>
+              <li>Doan Chau Tran (11736088)</li>
+              <li>Ildar Fatkullin (11724445)</li>
+            </ul>
           </div>
 
-          <div class="card">
-            <div class="card-title">Casualty class × severity (100%)</div>
-            <svg id="chartClassStack" class="chart"></svg>
+          <div class="about-card">
+            <h3>Links</h3>
+            <ul>
+              <li><a href="https://www.gov.uk/government/statistics/road-safety-data/" target="_blank" rel="noopener noreferrer">Dataset source (DfT)</a></li>
+              <li><a href="https://github.com/kashirhasnain/InfoViz-GroupAssignment2" target="_blank" rel="noopener noreferrer">Source code (GitHub)</a></li>
+              <li><a href="https://github.com/kashirhasnain/InfoViz-GroupAssignment2/blob/main/Road%20Safety%20proposal%20-%20G1.pdf" target="_blank" rel="noopener noreferrer">Project proposal (PDF)</a></li>
+            </ul>
           </div>
 
-          <div class="card span-2">
-            <div class="card-title">Heatmap: Age band × Casualty class</div>
-            <svg id="chartHeatAgeClass" class="chart"></svg>
-          </div>
-
-          <div class="card span-2">
-            <div class="card-title">Top casualty types</div>
-            <svg id="chartTypes" class="chart"></svg>
-          </div>
-        </div>
-      </section>
-
-      <section class="view" id="view-time">
-        <div class="grid">
-          <div class="card span-2">
-            <div class="card-title">Heatmap: Day of week × Hour (casualties)</div>
-            <svg id="chartTimeHeat" class="chart"></svg>
-          </div>
-        </div>
-      </section>
-
-      <!-- NEW: Vehicles view -->
-      <section class="view" id="view-vehicles">
-        <div class="kpis kpis-5">
-          <div class="kpi-card">
-            <div class="kpi-label">Cars & taxis</div>
-            <div class="kpi-value" id="kpiVehCars">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Motorcycles</div>
-            <div class="kpi-value" id="kpiVehMoto">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Buses & minibuses</div>
-            <div class="kpi-value" id="kpiVehBus">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Vans & goods</div>
-            <div class="kpi-value" id="kpiVehVans">—</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Special / other</div>
-            <div class="kpi-value" id="kpiVehOther">—</div>
-          </div>
-        </div>
-
-        <div class="switchers">
-          <div class="switcher-block">
-            <div class="switcher-title">Vehicle groups</div>
-            <select id="vehSelGroup" class="input" multiple size="5"></select>
-            <div class="muted">Tip: hold Ctrl (Windows) / ⌘ (Mac) to select multiple</div>
-          </div>
-
-          <div class="switcher-block">
-            <div class="switcher-title">Engine CC band</div>
-            <select id="vehSelEngine" class="input" multiple size="5"></select>
-          </div>
-
-          <div class="switcher-block">
-            <div class="switcher-title">Vehicle age band</div>
-            <select id="vehSelAge" class="input" multiple size="5"></select>
-          </div>
-
-          <div class="switcher-block">
-            <div class="switcher-title">Actions</div>
-            <button id="vehReset" class="btn">Reset vehicle filters</button>
-            <div class="muted">“Clear filters” also resets these.</div>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div class="card">
-            <div class="card-title">Vehicle point of impact (unique collisions)</div>
-            <svg id="chartVehImpact" class="chart"></svg>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Weather conditions (collisions)</div>
-            <svg id="chartVehWeather" class="chart"></svg>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Collisions by driver age group</div>
-            <svg id="chartVehDriverAge" class="chart"></svg>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Distance banding (unique collisions)</div>
-            <svg id="chartVehDistance" class="chart"></svg>
-          </div>
-        </div>
-      </section>
-
-      <section class="view" id="view-about">
-        <div class="card">
-          <div class="card-title">About</div>
-          <div class="card-body">
+          <div class="about-card">
+            <h3>Local data layout</h3>
             <p>
-              This is a D3.js dashboard designed as a group project for the 193.187 Information Visualization (VU 4,0) course at TU Wien.
-			</p>
-			<p>
-              Components: left filter panel, top switchers, KPI cards, and a responsive grid of visualisations.
+              This repo expects all CSV files in a <code>data</code> folder next to <code>index.html</code>.
             </p>
             <ul>
-              <li>Data sources: <strong>collisions</strong> + <strong>casualties</strong> + <strong>vehicles</strong>.</li>
-              <li>All tabs update live when filters/switchers are changed.</li>
+              <li><code>data/df_merged_GB_collisions_last5.csv</code> (Collisions)</li>
+              <li><code>data/collisions_2024.csv</code>, <code>data/vehicles_2024.csv</code>, <code>data/casualties_2024.csv</code> (Vehicles)</li>
             </ul>
-            <p class="muted">
-              
-            </p>
           </div>
         </div>
-      </section>
-
+      </div>
     </section>
   </main>
 
-  <div id="tooltip" class="tooltip" style="opacity:0;"></div>
-  <script src="road_safety.js"></script>
   <script src="vehicles.js"></script>
- 
+  <script src="collisions.js"></script>
 </body>
 </html>

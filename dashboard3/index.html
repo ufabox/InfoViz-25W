@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UK Road Safety Dashboard (D3)</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-left">
+      <div class="app-title">UK Road Safety Dashboard</div>
+      <div class="app-subtitle"></div>
+    </div>
+    <div class="header-right">
+      <button id="btnClear" class="btn btn-outline">Clear filters</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Dashboards">
+    <button class="tab active" data-view="summary">Summary</button>
+    <button class="tab" data-view="time">Time heatmap</button>
+    <button class="tab" data-view="vehicles">Vehicles</button>
+    <button class="tab" data-view="about">About</button>
+  </nav>
+
+  <main class="app">
+    <!-- LEFT FILTER PANEL -->
+    <aside class="sidebar">
+      <div class="panel-title">Filters</div>
+
+      <div class="filter-group">
+        <div class="filter-label">Date range (collision date)</div>
+        <div class="filter-row">
+          <input id="dateStart" type="date" class="input" />
+          <span class="muted">to</span>
+          <input id="dateEnd" type="date" class="input" />
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Police force</div>
+        <select id="selPolice" class="input"></select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Highway authority (ONS)</div>
+        <select id="selHighway" class="input"></select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Road type</div>
+        <select id="selRoadType" class="input"></select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Speed limit</div>
+        <select id="selSpeed" class="input"></select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Casualty sex</div>
+        <select id="selSex" class="input"></select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Age band (derived)</div>
+        <select id="selAgeBand" class="input"></select>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Casualty class</div>
+        <select id="selClass" class="input"></select>
+      </div>
+
+      <div class="sidebar-footnote">
+        <div><span class="dot dot-info"></span> Data: UK DfT STATS19</div>
+        <div class="muted">Note: labels are code-based where lookups are not available.</div>
+      </div>
+    </aside>
+
+    <!-- RIGHT CONTENT -->
+    <section class="content">
+
+      <!-- TOP SWITCHERS -->
+      <div class="switchers">
+        <div class="switcher-block">
+          <div class="switcher-title">Casualty severity</div>
+          <div class="btn-group" id="severityButtons">
+            <button class="btn btn-chip active" data-sev="Fatal">Fatal</button>
+            <button class="btn btn-chip active" data-sev="Serious">Serious</button>
+            <button class="btn btn-chip active" data-sev="Slight">Slight</button>
+          </div>
+        </div>
+
+        <div class="switcher-block">
+          <div class="switcher-title">Heatmap metric</div>
+          <div class="btn-group" id="metricButtons">
+            <button class="btn btn-chip active" data-metric="count">Total</button>
+            <button class="btn btn-chip" data-metric="ksiShare">KSI share</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEWS -->
+      <section class="view active" id="view-summary">
+        <div class="kpis">
+          <div class="kpi-card">
+            <div class="kpi-label">Total casualties</div>
+            <div class="kpi-value" id="kpiCas">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total collisions</div>
+            <div class="kpi-value" id="kpiCol">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Fatal / Serious / Slight</div>
+            <div class="kpi-value" id="kpiSev">—</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="card-title">Casualties by severity</div>
+            <svg id="chartSeverity" class="chart"></svg>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Casualty class × severity (100%)</div>
+            <svg id="chartClassStack" class="chart"></svg>
+          </div>
+
+          <div class="card span-2">
+            <div class="card-title">Heatmap: Age band × Casualty class</div>
+            <svg id="chartHeatAgeClass" class="chart"></svg>
+          </div>
+
+          <div class="card span-2">
+            <div class="card-title">Top casualty types</div>
+            <svg id="chartTypes" class="chart"></svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-time">
+        <div class="grid">
+          <div class="card span-2">
+            <div class="card-title">Heatmap: Day of week × Hour (casualties)</div>
+            <svg id="chartTimeHeat" class="chart"></svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- NEW: Vehicles view -->
+      <section class="view" id="view-vehicles">
+        <div class="kpis kpis-5">
+          <div class="kpi-card">
+            <div class="kpi-label">Cars & taxis</div>
+            <div class="kpi-value" id="kpiVehCars">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Motorcycles</div>
+            <div class="kpi-value" id="kpiVehMoto">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Buses & minibuses</div>
+            <div class="kpi-value" id="kpiVehBus">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Vans & goods</div>
+            <div class="kpi-value" id="kpiVehVans">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Special / other</div>
+            <div class="kpi-value" id="kpiVehOther">—</div>
+          </div>
+        </div>
+
+        <div class="switchers">
+          <div class="switcher-block">
+            <div class="switcher-title">Vehicle groups</div>
+            <select id="vehSelGroup" class="input" multiple size="5"></select>
+            <div class="muted">Tip: hold Ctrl (Windows) / ⌘ (Mac) to select multiple</div>
+          </div>
+
+          <div class="switcher-block">
+            <div class="switcher-title">Engine CC band</div>
+            <select id="vehSelEngine" class="input" multiple size="5"></select>
+          </div>
+
+          <div class="switcher-block">
+            <div class="switcher-title">Vehicle age band</div>
+            <select id="vehSelAge" class="input" multiple size="5"></select>
+          </div>
+
+          <div class="switcher-block">
+            <div class="switcher-title">Actions</div>
+            <button id="vehReset" class="btn">Reset vehicle filters</button>
+            <div class="muted">“Clear filters” also resets these.</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="card-title">Vehicle point of impact (unique collisions)</div>
+            <svg id="chartVehImpact" class="chart"></svg>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Weather conditions (collisions)</div>
+            <svg id="chartVehWeather" class="chart"></svg>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Collisions by driver age group</div>
+            <svg id="chartVehDriverAge" class="chart"></svg>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Distance banding (unique collisions)</div>
+            <svg id="chartVehDistance" class="chart"></svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-about">
+        <div class="card">
+          <div class="card-title">About</div>
+          <div class="card-body">
+            <p>
+              This is a D3.js dashboard designed as a group project for the 193.187 Information Visualization (VU 4,0) course at TU Wien.
+			</p>
+			<p>
+              Components: left filter panel, top switchers, KPI cards, and a responsive grid of visualisations.
+            </p>
+            <ul>
+              <li>Data sources: <strong>collisions</strong> + <strong>casualties</strong> + <strong>vehicles</strong>.</li>
+              <li>All tabs update live when filters/switchers are changed.</li>
+            </ul>
+            <p class="muted">
+              
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </section>
+  </main>
+
+  <div id="tooltip" class="tooltip" style="opacity:0;"></div>
+  <script src="road_safety.js"></script>
+  <script src="vehicles.js"></script>
+ 
+</body>
+</html>
